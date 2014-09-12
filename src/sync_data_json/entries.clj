@@ -115,6 +115,14 @@
         soda-importer (new-soda-importer url username password token)]
     (-> soda-importer (.updateDatasetInfo (update-external-dataset-data jsonentry dataset)))))
 
+(defn update-existing-external-dataset [destination-id jsonentry url username password token]
+  (let [importer (new-soda-importer url username password token)
+        loaded-view (update-external-dataset-data jsonentry (-> importer (.createWorkingCopy destination-id)))]
+    (-> importer
+      (.updateDatasetInfo loaded-view)
+      (.publish (.getId loaded-view)))))
+
+
 (defn create-external-dataset [jsonentry url username password token]
   (let [soda-importer (new-soda-importer url username password token)
         new-dataset (-> soda-importer (.createDataset (build-external-dataset jsonentry)))]
