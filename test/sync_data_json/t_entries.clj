@@ -166,3 +166,13 @@
 ;(facts "create-external-dataset"
 ;  (fact ""
 ;    (entries/create-external-dataset example-entry (env :test-url) (env :test-username) (env :test-password) (env :test-token)) => ""))
+
+(facts "update-external-dataset-from-entry"
+  (with-state-changes [(before :facts (reset-database))]
+    (fact "When dataset is updated, it changes the changed field to false of the entry with the given source_id"
+        (do
+          (entries/create-entry {:identifier "testtest"})
+          (entries/create-entry {:identifier "testtesttest"})
+          (with-redefs [entries/update-existing-external-dataset (fn [destination-id jsonentry url username password token] {})]
+            (entries/update-external-dataset-from-entry "xxxx-xxxx" {:identifier "testtesttest"} "" "" "" ""))
+          (get (first (select entries/entries (where (and (= :changed false) (= :source_id "testtesttest"))))) :source_id)) => "testtesttest")))

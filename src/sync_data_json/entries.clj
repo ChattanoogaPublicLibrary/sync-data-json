@@ -134,3 +134,15 @@
 
 (defn get-updated-entries []
   (select entries (where (and (= :new_entry false) (= :changed true)))))
+
+(defn create-external-dataset-from-entry [jsonentry url username password token]
+  (let [new-dataset (create-external-dataset jsonentry url username password token)]
+    (update entries
+          (set-fields {:changed false :new_entry false :destination_id (.getId new-dataset)})
+          (where (= :source_id (get jsonentry :identifier))))))
+
+(defn update-external-dataset-from-entry [destination-id jsonentry url username password token]
+  (let [updated-dataset (update-existing-external-dataset destination-id jsonentry url username password token)]
+    (update entries
+      (set-fields {:changed false })
+      (where (= :source_id destination-id)))))
