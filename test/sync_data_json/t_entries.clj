@@ -170,10 +170,11 @@
 
 
 ;(facts "create-external-dataset-from-entry"
-;  (fact ""
-;    (do
-;      (entries/create-entry example-entry "data.chattlibrary.org")
-;      (entries/update-external-dataset-from-entry "tp9p-t4u4" updated-example-entry "data.chattlibrary.org" (env :test-url) (env :test-username) (env :test-password) (env :test-token)))=> ""))
+;  (with-state-changes [(before :facts (reset-database))]
+;    (fact ""
+;      (do
+;        (entries/create-entry example-entry "data.chattlibrary.org")
+;        (entries/update-external-dataset-from-entry "tva8-quuq" example-entry "data.chattlibrary.org" (env :test-url) (env :test-username) (env :test-password) (env :test-token)))=> "")))
 
 (facts "update-external-dataset-from-entry"
   (with-state-changes [(before :facts (reset-database))]
