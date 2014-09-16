@@ -11,6 +11,10 @@
   (exec-raw entries/db "DELETE FROM entries;")
   (exec-raw entries/db "ALTER SEQUENCE entries_id_seq RESTART WITH 1;"))
 
+(facts "get-host-from-url"
+  (fact "It gets the host from a URL."
+    (entries/get-host-from-url "http://www.google.com") => "www.google.com"))
+
 (facts "strip-html"
   (fact "strips html from given text"
     (entries/strip-html "<b>Hi. I am text.</b><a href='#'> I am a link.") => "Hi. I am text. I am a link."))

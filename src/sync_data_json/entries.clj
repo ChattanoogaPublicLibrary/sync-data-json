@@ -2,6 +2,7 @@
   (:require [korma.db :refer :all]
             [korma.core :refer :all]
             [environ.core :refer [env]]
+            [cemerick.url :as cemerickurl]
             [digest :as digest])
   (:import [com.socrata.api SodaImporter HttpLowLevel]
            [com.socrata.model.importer DatasetInfo Metadata]
@@ -18,6 +19,10 @@
 (defentity entries
   (pk :id)
   (table :entries))
+
+(defn get-host-from-url [u]
+  (-> (cemerickurl/url u)
+      (get :host)))
 
 (defn strip-html [t]
   (.text (Jsoup/parse t)))
