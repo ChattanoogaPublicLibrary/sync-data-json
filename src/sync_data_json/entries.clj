@@ -42,47 +42,47 @@
     (sanitize-entry-description)
     (sanitize-entry-keyword)))
 
-(defn exists-by-source-id [source-id]
+(defn entry-exists [source-id host]
   (> (get (first
     (select entries
       (aggregate (count :*) :cnt)
-      (where (= :source_id source-id))))
+      (where (and (= :host host) (= :source_id source-id)))))
       :cnt) 0))
 
 (defn entry-as-md5 [jsonentry]
   (digest/md5 (pr-str jsonentry)))
 
-(defn entry-not-changed [jsonentry]
+(defn entry-not-changed [jsonentry host]
   (let [sanitized-entry (sanitize-entry jsonentry)
         id (get sanitized-entry :identifier)
         checksum (entry-as-md5 sanitized-entry)]
     (> (get (first
       (select entries
         (aggregate (count :*) :cnt)
-        (where (and (= :source_id id) (= :checksum checksum)))))
+        (where (and (= :host host) (= :source_id id) (= :checksum checksum)))))
         :cnt) 0)))
 
-(defn create-entry [jsonentry]
+(defn create-entry [jsonentry host]
   (let [sanitized-entry (sanitize-entry jsonentry)
         id (get sanitized-entry :identifier)
         checksum (entry-as-md5 sanitized-entry)]
     (insert entries
-      (values {:source_id id :checksum checksum :serialized_data (pr-str sanitized-entry)}))))
+      (values {:host host :source_id id :checksum checksum :serialized_data (pr-str sanitized-entry)}))))
 
-(defn update-entry [jsonentry]
+(defn update-entry [jsonentry host]
   (let [sanitized-entry (sanitize-entry jsonentry)
         id (get sanitized-entry :identifier)
         checksum (entry-as-md5 sanitized-entry)]
     (update entries
       (set-fields {:changed true :new_entry false :checksum checksum :serialized_data (pr-str sanitized-entry)})
-      (where (and (= :source_id id) (not= checksum :checksum))))))
+      (where (and (= :host host) (= :source_id id) (not= checksum :checksum))))))
 
 ; Combine create and update entry
-(defn load-entry [jsonentry]
-  (if (not (exists-by-source-id (get jsonentry :identifier)))
-    (create-entry jsonentry)
-    (if (not (entry-not-changed jsonentry))
-      (update-entry jsonentry)
+(defn load-entry [jsonentry host]
+  (if (not (entry-exists (get jsonentry :identifier) host))
+    (create-entry jsonentry host)
+    (if (not (entry-not-changed jsonentry host))
+      (update-entry jsonentry host)
       nil)))
 
 (defn new-soda-importer [url username password token]
@@ -140,14 +140,14 @@
 (defn get-updated-entries []
   (select entries (where (and (= :new_entry false) (= :changed true)))))
 
-(defn create-external-dataset-from-entry [jsonentry url username password token]
+(defn create-external-dataset-from-entry [jsonentry host url username password token]
   (let [new-dataset (create-external-dataset jsonentry url username password token)]
     (update entries
           (set-fields {:changed false :new_entry false :destination_id (.getId new-dataset)})
-          (where (= :source_id (get jsonentry :identifier))))))
+          (where (and (= :host host) (= :source_id (get jsonentry :identifier)))))))
 
-(defn update-external-dataset-from-entry [destination-id jsonentry url username password token]
+(defn update-external-dataset-from-entry [destination-id jsonentry host url username password token]
   (let [updated-dataset (update-existing-external-dataset destination-id jsonentry url username password token)]
     (update entries
       (set-fields {:changed false })
-      (where (= :source_id destination-id)))))
+      (where (and (= :host host) (= :source_id destination-id))))))

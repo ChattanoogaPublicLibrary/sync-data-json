@@ -7,6 +7,8 @@
 
 (def example-entry {:description "Properties of the Tennessee River Gorge Trust", :accessLevel "public", :publisher "none", :license "", :mbox "geoace67", :spatial "-85.5614 34.9938 -85.34 35.1803", :contactPoint "geoace67", :modified "2013-02-06T15:24:40.000+00:00", :title "Prentice Cooper State Forest", :keyword ["Tennessee River Gorge" "Chattanooga" "TN"], :identifier "d0111ac0e16341b48418e27a152b16cb_1", :distribution [{:accessURL "http://geoportal.congeo.opendata.arcgis.com/datasets/d0111ac0e16341b48418e27a152b16cb_1.csv", :format "csv"} {:accessURL "http://geoportal.congeo.opendata.arcgis.com/datasets/d0111ac0e16341b48418e27a152b16cb_1.kml", :format "kml"} {:accessURL "http://geoportal.congeo.opendata.arcgis.com/datasets/d0111ac0e16341b48418e27a152b16cb_1.geojson", :format "geojson"} {:accessURL "http://geoportal.congeo.opendata.arcgis.com/datasets/d0111ac0e16341b48418e27a152b16cb_1.zip", :format "zip"}], :webService "http://geoengine.utc.edu:6080/arcgis/rest/services/TRGT/TRGT_properties/MapServer/1"})
 
+(def updated-example-entry {:description "Properties of the Tennessee River Gorge Trust", :accessLevel "public", :publisher "none", :license "", :mbox "geoace67", :spatial "-85.5614 34.9938 -85.34 35.1803", :contactPoint "geoace67", :modified "2013-02-06T15:24:40.000+00:00", :title "Prentice Cooper State Forest (revised)", :keyword ["Tennessee River Gorge" "Chattanooga" "TN"], :identifier "d0111ac0e16341b48418e27a152b16cb_1", :distribution [{:accessURL "http://geoportal.congeo.opendata.arcgis.com/datasets/d0111ac0e16341b48418e27a152b16cb_1.csv", :format "csv"} {:accessURL "http://geoportal.congeo.opendata.arcgis.com/datasets/d0111ac0e16341b48418e27a152b16cb_1.kml", :format "kml"} {:accessURL "http://geoportal.congeo.opendata.arcgis.com/datasets/d0111ac0e16341b48418e27a152b16cb_1.geojson", :format "geojson"} {:accessURL "http://geoportal.congeo.opendata.arcgis.com/datasets/d0111ac0e16341b48418e27a152b16cb_1.zip", :format "zip"}], :webService "http://geoengine.utc.edu:6080/arcgis/rest/services/TRGT/TRGT_properties/MapServer/1"})
+
 (defn reset-database []
   (exec-raw entries/db "DELETE FROM entries;")
   (exec-raw entries/db "ALTER SEQUENCE entries_id_seq RESTART WITH 1;"))
@@ -35,14 +37,14 @@
 
     )
 
-(facts "exists-by-source-id"
+(facts "exists"
   (with-state-changes [(before :facts (reset-database))]
-    (fact "it returns true if a record exists by the source id."
+    (fact "it returns true if a record exists by the source id and host"
       (do
-        (entries/create-entry {:identifier "thisisatest"})
-        (entries/exists-by-source-id "thisisatest")) => true)
-    (fact "it returns true if a record exists by the source id."
-      (entries/exists-by-source-id "idonotexist") => false)))
+        (entries/create-entry {:identifier "thisisatest"} "data.chattlibrary.org")
+        (entries/entry-exists "thisisatest" "data.chattlibrary.org")) => true)
+    (fact "it returns true if a record doesn't exist by source id and host"
+      (entries/entry-exists "idonotexist" "data.chattlibrary.org") => false)))
 
 (facts "entry-as-md5"
   (fact "it returns the md5 checksum of a stringified clojure data structure"
@@ -52,32 +54,32 @@
   (with-state-changes [(before :facts (reset-database))]
     (fact "It assumes HTML is stripped in create-entry and update-entry."
       (do
-        (entries/create-entry {:identifier "thisisatest" :description "<b>Hi</b>"})
-        (entries/entry-not-changed {:identifier "thisisatest" :description "Hi"})) => true)
+        (entries/create-entry {:identifier "thisisatest" :description "<b>Hi</b>"} "data.chattlibrary.org")
+        (entries/entry-not-changed {:identifier "thisisatest" :description "Hi"} "data.chattlibrary.org")) => true)
     (fact "it returns true if the entry has not changed"
       (do
-        (entries/create-entry {:identifier "thisisatest"})
-        (entries/entry-not-changed {:identifier "thisisatest"})) => true)
+        (entries/create-entry {:identifier "thisisatest"} "data.chattlibrary.org")
+        (entries/entry-not-changed {:identifier "thisisatest"} "data.chattlibrary.org")) => true)
     (fact "it returns false if the entry has changed"
       (do
-        (entries/create-entry {:identifier "thisisatest"})
-        (entries/entry-not-changed {:identifier "thisisatest" :something "else"})) => false)))
+        (entries/create-entry {:identifier "thisisatest"} "data.chattlibrary.org")
+        (entries/entry-not-changed {:identifier "thisisatest" :something "else"} "data.chattlibrary.org")) => false)))
 
 (facts "create-entry"
   (with-state-changes [(before :facts (reset-database))]
     (fact "It strips HTML from description."
       (do
-        (entries/create-entry {:identifier "thisisatest" :description "<b>Hi.</b>"})
+        (entries/create-entry {:identifier "thisisatest" :description "<b>Hi.</b>"} "data.chattlibrary.org")
         (get (read-string (get
           (first (select entries/entries
             (where (= :source_id "thisisatest")))) :serialized_data)) :description) => "Hi."))
     (fact "it returns true if a record exists by the source id."
       (do
-        (entries/create-entry {:identifier "thisisatest"})
-        (entries/exists-by-source-id "thisisatest")) => true)
+        (entries/create-entry {:identifier "thisisatest"} "data.chattlibrary.org")
+        (entries/entry-exists "thisisatest" "data.chattlibrary.org")) => true)
     (fact "it creates a record with the serialized entry data saved in the record."
       (do
-        (entries/create-entry {:identifier "atest"})
+        (entries/create-entry {:identifier "atest"} "data.chattlibrary.org")
         (get
           (first
             (select entries/entries
@@ -87,36 +89,36 @@
   (with-state-changes [(before :facts (reset-database))]
     (fact "It strips HTML from description."
       (do
-        (entries/create-entry {:identifier "thisisatest" :description "<b>Hi.</b>"})
-        (entries/update-entry {:identifier "thisisatest" :something "else" :description "<b>Hi.</b>"})
+        (entries/create-entry {:identifier "thisisatest" :description "<b>Hi.</b>"} "data.chattlibrary.org")
+        (entries/update-entry {:identifier "thisisatest" :something "else" :description "<b>Hi.</b>"} "data.chattlibrary.org")
         (get (read-string (get
           (first (select entries/entries
             (where (= :source_id "thisisatest")))) :serialized_data)) :description) => "Hi."))
     (fact "If the entry has changed, update with the field's new checksum."
       (do
-        (entries/create-entry {:identifier "thisisatest"})
-        (entries/update-entry {:identifier "thisisatest" :something "else"})
+        (entries/create-entry {:identifier "thisisatest"} "data.chattlibrary.org")
+        (entries/update-entry {:identifier "thisisatest" :something "else"} "data.chattlibrary.org")
         (get (first (select entries/entries (where (= :source_id "thisisatest")))) :checksum)) => "b9cbcd964dbb8733e51061d3e9af67cf")
     (fact "If the entry has changed, the serialized_data is updated."
       (do
-        (entries/create-entry {:identifier "atest"})
-        (entries/update-entry {:identifier "atest" :something "else"})
+        (entries/create-entry {:identifier "atest"} "data.chattlibrary.org")
+        (entries/update-entry {:identifier "atest" :something "else"} "data.chattlibrary.org")
         (get
           (first
             (select entries/entries
               (where (= :source_id "atest")))) :serialized_data)) => "{:keyword [], :description \"\", :identifier \"atest\", :something \"else\"}")
     (fact "If the entry has not changed, the serialized_data stays the same."
       (do
-        (entries/create-entry {:identifier "yetanothertest"})
-        (entries/update-entry {:identifier "yetanothertest"})
+        (entries/create-entry {:identifier "yetanothertest"} "data.chattlibrary.org")
+        (entries/update-entry {:identifier "yetanothertest"} "data.chattlibrary.org")
         (get
           (first
             (select entries/entries
               (where (= :source_id "yetanothertest")))) :serialized_data)) => "{:keyword [], :description \"\", :identifier \"yetanothertest\"}")
     (fact "If the entry has not changed, the original checksum for the entry stays the same."
       (do
-        (entries/create-entry {:identifier "thisisanothertest"})
-        (entries/update-entry {:identifier "thisisanothertest"})
+        (entries/create-entry {:identifier "thisisanothertest"} "data.chattlibrary.org")
+        (entries/update-entry {:identifier "thisisanothertest"} "data.chattlibrary.org")
         (get (first (select entries/entries (where (= :source_id "thisisanothertest")))) :checksum)) => "dc5c0c7a0c2ac98d56d142025abc72dc")))
 
 (facts "distribution-to-access-points"
@@ -142,12 +144,12 @@
   (with-state-changes [(before :facts (reset-database))]
     (fact "It returns new entries."
       (do
-        (entries/create-entry {:identifier "yetanothertest"})
-        (entries/create-entry {:identifier "test"})
-        (entries/create-entry {:identifier "testtest"})
-        (entries/create-entry {:identifier "testtesttest"})
-        (entries/update-entry {:identifier "testtest" :something "else"})
-        (entries/update-entry {:identifier "testtesttest" :something "else"})
+        (entries/create-entry {:identifier "yetanothertest"} "data.chattlibrary.org")
+        (entries/create-entry {:identifier "test"} "data.chattlibrary.org")
+        (entries/create-entry {:identifier "testtest"} "data.chattlibrary.org")
+        (entries/create-entry {:identifier "testtesttest"} "data.chattlibrary.org")
+        (entries/update-entry {:identifier "testtest" :something "else"} "data.chattlibrary.org")
+        (entries/update-entry {:identifier "testtesttest" :something "else"} "data.chattlibrary.org")
         (count (entries/get-new-entries)))
         => 2)))
 
@@ -155,28 +157,30 @@
   (with-state-changes [(before :facts (reset-database))]
     (fact "It returns updated entries"
       (do
-        (entries/create-entry {:identifier "yetanothertest"})
-        (entries/create-entry {:identifier "test"})
-        (entries/create-entry {:identifier "testtest"})
-        (entries/create-entry {:identifier "testtesttest"})
-        (entries/update-entry {:identifier "testtest" :something "else"})
-        (entries/update-entry {:identifier "testtesttest" :something "else"})
-        (entries/update-entry {:identifier "test" :something "else"})
+        (entries/create-entry {:identifier "yetanothertest"} "data.chattlibrary.org")
+        (entries/create-entry {:identifier "test"} "data.chattlibrary.org")
+        (entries/create-entry {:identifier "testtest"} "data.chattlibrary.org")
+        (entries/create-entry {:identifier "testtesttest"} "data.chattlibrary.org")
+        (entries/update-entry {:identifier "testtest" :something "else"} "data.chattlibrary.org")
+        (entries/update-entry {:identifier "testtesttest" :something "else"} "data.chattlibrary.org")
+        (entries/update-entry {:identifier "test" :something "else"} "data.chattlibrary.org")
         (count (entries/get-updated-entries)))
         => 3)))
 
 
 
-;(facts "create-external-dataset"
+;(facts "create-external-dataset-from-entry"
 ;  (fact ""
-;    (entries/create-external-dataset example-entry (env :test-url) (env :test-username) (env :test-password) (env :test-token)) => ""))
+;    (do
+;      (entries/create-entry example-entry "data.chattlibrary.org")
+;      (entries/update-external-dataset-from-entry "tp9p-t4u4" updated-example-entry "data.chattlibrary.org" (env :test-url) (env :test-username) (env :test-password) (env :test-token)))=> ""))
 
 (facts "update-external-dataset-from-entry"
   (with-state-changes [(before :facts (reset-database))]
     (fact "When dataset is updated, it changes the changed field to false of the entry with the given source_id"
         (do
-          (entries/create-entry {:identifier "testtest"})
-          (entries/create-entry {:identifier "testtesttest"})
+          (entries/create-entry {:identifier "testtest"} "data.chattlibrary.org")
+          (entries/create-entry {:identifier "testtesttest"} "data.chattlibrary.org")
           (with-redefs [entries/update-existing-external-dataset (fn [destination-id jsonentry url username password token] {})]
-            (entries/update-external-dataset-from-entry "xxxx-xxxx" {:identifier "testtesttest"} "" "" "" ""))
+            (entries/update-external-dataset-from-entry "xxxx-xxxx" {:identifier "testtesttest"} "data.chattlibrary.org" "" "" "" ""))
           (get (first (select entries/entries (where (and (= :changed false) (= :source_id "testtesttest"))))) :source_id)) => "testtesttest")))
