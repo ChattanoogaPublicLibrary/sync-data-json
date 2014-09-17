@@ -52,15 +52,15 @@
 (defn entry-as-md5 [jsonentry]
   (digest/md5 (pr-str jsonentry)))
 
-(defn entry-not-changed [jsonentry host]
+(defn entry-changed? [jsonentry host]
   (let [sanitized-entry (sanitize-entry jsonentry)
         id (get sanitized-entry :identifier)
         checksum (entry-as-md5 sanitized-entry)]
-    (> (get (first
+    (not (> (get (first
       (select entries
         (aggregate (count :*) :cnt)
         (where (and (= :host host) (= :source_id id) (= :checksum checksum)))))
-        :cnt) 0)))
+        :cnt) 0))))
 
 (defn create-entry [jsonentry host]
   (let [sanitized-entry (sanitize-entry jsonentry)
@@ -81,7 +81,7 @@
 (defn load-entry [jsonentry host]
   (if (not (entry-exists (get jsonentry :identifier) host))
     (create-entry jsonentry host)
-    (if (not (entry-not-changed jsonentry host))
+    (if (entry-changed? jsonentry host)
       (update-entry jsonentry host)
       nil)))
 

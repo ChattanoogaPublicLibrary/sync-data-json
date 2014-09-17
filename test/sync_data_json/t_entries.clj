@@ -50,20 +50,16 @@
   (fact "it returns the md5 checksum of a stringified clojure data structure"
     (entries/entry-as-md5 {:test "test"}) => "57e29fb58f7eb934bdd53e6b6a6a4a57"))
 
-(facts "entry-not-changed"
+(facts "entry-changed?"
   (with-state-changes [(before :facts (reset-database))]
-    (fact "It assumes HTML is stripped in create-entry and update-entry."
-      (do
-        (entries/create-entry {:identifier "thisisatest" :description "<b>Hi</b>"} "data.chattlibrary.org")
-        (entries/entry-not-changed {:identifier "thisisatest" :description "Hi"} "data.chattlibrary.org")) => true)
-    (fact "it returns true if the entry has not changed"
+    (fact "it returns false if the entry has not changed"
       (do
         (entries/create-entry {:identifier "thisisatest"} "data.chattlibrary.org")
-        (entries/entry-not-changed {:identifier "thisisatest"} "data.chattlibrary.org")) => true)
-    (fact "it returns false if the entry has changed"
+        (entries/entry-changed? {:identifier "thisisatest"} "data.chattlibrary.org")) => false)
+    (fact "it returns true if the entry has changed"
       (do
         (entries/create-entry {:identifier "thisisatest"} "data.chattlibrary.org")
-        (entries/entry-not-changed {:identifier "thisisatest" :something "else"} "data.chattlibrary.org")) => false)))
+        (entries/entry-changed? {:identifier "thisisatest" :something "else"} "data.chattlibrary.org")) => true)))
 
 (facts "create-entry"
   (with-state-changes [(before :facts (reset-database))]
