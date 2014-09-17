@@ -27,6 +27,16 @@
 (defn strip-html [t]
   (.text (Jsoup/parse t)))
 
+(defn sanitize-entry-attribution [jsonentry]
+  (if (nil? (get jsonentry :attribution))
+    (assoc-in jsonentry [:attribution] "")
+    (update-in jsonentry [:attribution] strip-html)))
+
+(defn sanitize-entry-attribution-url [jsonentry]
+  (if (nil? (get jsonentry :attributionURL))
+    (assoc-in jsonentry [:attributionURL] "")
+    (update-in jsonentry [:attributionURL] strip-html)))
+
 (defn sanitize-entry-description [jsonentry]
   (if (nil? (get jsonentry :description))
     (assoc-in jsonentry [:description] "")
@@ -39,6 +49,8 @@
 
 (defn sanitize-entry [jsonentry]
   (-> jsonentry
+    (sanitize-entry-attribution)
+    (sanitize-entry-attribution-url)
     (sanitize-entry-description)
     (sanitize-entry-keyword)))
 

@@ -21,6 +21,22 @@
   (fact "strips html from given text"
     (entries/strip-html "<b>Hi. I am text.</b><a href='#'> I am a link.") => "Hi. I am text. I am a link."))
 
+(facts "sanitize-entry-attribution"
+  (fact "If an entry has no attribution, it is given an empty attribution"
+    (entries/sanitize-entry-attribution {:identifier "test"}) => {:attribution "", :identifier "test"})
+  (fact "If an entry has an attribution with HTML, the HTML is stripped."
+    (entries/sanitize-entry-attribution {:attribution "<b>Test</b>" :identifier "test"}) => {:attribution "Test", :identifier "test"})
+  (fact "If an entry has a attribution with no HTML, the plain text stays the same."
+    (entries/sanitize-entry-attribution {:attribution "Test" :identifier "test"}) => {:attribution "Test", :identifier "test"}))
+
+(facts "sanitize-entry-attribution-url"
+  (fact "If an entry has no attribution url, it is given an empty attribution url"
+    (entries/sanitize-entry-attribution-url {:identifier "test"}) => {:attributionURL "", :identifier "test"})
+  (fact "If an entry has an attribution url with HTML, the HTML is stripped."
+    (entries/sanitize-entry-attribution-url {:attributionURL "<a href=\"http://data.chattlibrary.org\">http://data.chattlibrary.org</a>" :identifier "test"}) => {:attributionURL "http://data.chattlibrary.org", :identifier "test"})
+  (fact "If an entry has a attribution url with no HTML, the plain text stays the same."
+    (entries/sanitize-entry-attribution-url {:attributionURL "http://data.chattlibrary.org" :identifier "test"}) => {:attributionURL "http://data.chattlibrary.org", :identifier "test"}))
+
 (facts "sanitize-entry-description"
   (fact "If an entry has no description, it is given an empty description"
     (entries/sanitize-entry-description {:identifier "test"}) => {:description "", :identifier "test"})
@@ -79,7 +95,7 @@
         (get
           (first
             (select entries/entries
-              (where (= :source_id "atest")))) :serialized_data)) => "{:keyword [], :description \"\", :identifier \"atest\"}")))
+              (where (= :source_id "atest")))) :serialized_data)) => "{:keyword [], :description \"\", :attributionURL \"\", :attribution \"\", :identifier \"atest\"}")))
 
 (facts "update-entry"
   (with-state-changes [(before :facts (reset-database))]
@@ -94,7 +110,7 @@
       (do
         (entries/create-entry {:identifier "thisisatest"} "data.chattlibrary.org")
         (entries/update-entry {:identifier "thisisatest" :something "else"} "data.chattlibrary.org")
-        (get (first (select entries/entries (where (= :source_id "thisisatest")))) :checksum)) => "b9cbcd964dbb8733e51061d3e9af67cf")
+        (get (first (select entries/entries (where (= :source_id "thisisatest")))) :checksum)) => "35b3938bae08625525bc43fbd5122a67")
     (fact "If the entry has changed, the serialized_data is updated."
       (do
         (entries/create-entry {:identifier "atest"} "data.chattlibrary.org")
@@ -102,7 +118,7 @@
         (get
           (first
             (select entries/entries
-              (where (= :source_id "atest")))) :serialized_data)) => "{:keyword [], :description \"\", :identifier \"atest\", :something \"else\"}")
+              (where (= :source_id "atest")))) :serialized_data)) => "{:keyword [], :description \"\", :attributionURL \"\", :attribution \"\", :identifier \"atest\", :something \"else\"}")
     (fact "If the entry has not changed, the serialized_data stays the same."
       (do
         (entries/create-entry {:identifier "yetanothertest"} "data.chattlibrary.org")
@@ -110,12 +126,12 @@
         (get
           (first
             (select entries/entries
-              (where (= :source_id "yetanothertest")))) :serialized_data)) => "{:keyword [], :description \"\", :identifier \"yetanothertest\"}")
+              (where (= :source_id "yetanothertest")))) :serialized_data)) => "{:keyword [], :description \"\", :attributionURL \"\", :attribution \"\", :identifier \"yetanothertest\"}")
     (fact "If the entry has not changed, the original checksum for the entry stays the same."
       (do
         (entries/create-entry {:identifier "thisisanothertest"} "data.chattlibrary.org")
         (entries/update-entry {:identifier "thisisanothertest"} "data.chattlibrary.org")
-        (get (first (select entries/entries (where (= :source_id "thisisanothertest")))) :checksum)) => "dc5c0c7a0c2ac98d56d142025abc72dc")))
+        (get (first (select entries/entries (where (= :source_id "thisisanothertest")))) :checksum)) => "800bb75145b9fd8585da89e10ec655f2")))
 
 (facts "distribution-to-access-points"
   (fact "It creates a key pair from the URL file type that contains the URL"
