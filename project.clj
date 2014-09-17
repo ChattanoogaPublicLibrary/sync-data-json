@@ -1,8 +1,8 @@
 (defproject sync-data-json "0.0.0-SNAPSHOT"
-  :description "FIXME: write description"
-  :url "http://example.com/FIXME"
-  :license {:name "Eclipse Public License"
-            :url "http://www.eclipse.org/legal/epl-v10.html"}
+  :description "A utility to mirror datasets from other data portals as external datasets in your Socrata Open Data Portal. Uses external data portal's data.json dataset catalog for aggregation."
+  :url "https://github.com/ChattanoogaPublicLibrary/sync-data-json"
+  :license {:name "MIT"
+            :url "http://opensource.org/licenses/MIT"}
   :dependencies [
     [org.clojure/clojure "1.6.0"]
     [log4j "1.2.15" :exclusions [javax.mail/mail
