@@ -37,14 +37,14 @@
 
     )
 
-(facts "exists"
+(facts "entry-exists?"
   (with-state-changes [(before :facts (reset-database))]
     (fact "it returns true if a record exists by the source id and host"
       (do
         (entries/create-entry {:identifier "thisisatest"} "data.chattlibrary.org")
-        (entries/entry-exists "thisisatest" "data.chattlibrary.org")) => true)
+        (entries/entry-exists? "thisisatest" "data.chattlibrary.org")) => true)
     (fact "it returns true if a record doesn't exist by source id and host"
-      (entries/entry-exists "idonotexist" "data.chattlibrary.org") => false)))
+      (entries/entry-exists? "idonotexist" "data.chattlibrary.org") => false)))
 
 (facts "entry-as-md5"
   (fact "it returns the md5 checksum of a stringified clojure data structure"
@@ -72,7 +72,7 @@
     (fact "it returns true if a record exists by the source id."
       (do
         (entries/create-entry {:identifier "thisisatest"} "data.chattlibrary.org")
-        (entries/entry-exists "thisisatest" "data.chattlibrary.org")) => true)
+        (entries/entry-exists? "thisisatest" "data.chattlibrary.org")) => true)
     (fact "it creates a record with the serialized entry data saved in the record."
       (do
         (entries/create-entry {:identifier "atest"} "data.chattlibrary.org")

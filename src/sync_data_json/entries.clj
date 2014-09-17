@@ -42,7 +42,7 @@
     (sanitize-entry-description)
     (sanitize-entry-keyword)))
 
-(defn entry-exists [source-id host]
+(defn entry-exists? [source-id host]
   (> (get (first
     (select entries
       (aggregate (count :*) :cnt)
@@ -79,7 +79,7 @@
 
 ; Combine create and update entry
 (defn load-entry [jsonentry host]
-  (if (not (entry-exists (get jsonentry :identifier) host))
+  (if (not (entry-exists? (get jsonentry :identifier) host))
     (create-entry jsonentry host)
     (if (entry-changed? jsonentry host)
       (update-entry jsonentry host)
