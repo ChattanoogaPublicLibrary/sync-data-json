@@ -18,7 +18,11 @@
     [org.jsoup/jsoup "1.7.2"]
     [com.cemerick/url "0.1.1"]
     [cheshire "5.3.1"]]
+  :main ^:skip-aot sync-data-json.core
+  :target-path "target/%s"
+  :javac-options ["-target" "1.7" "-source" "1.7"]
   :profiles {
+    :uberjar {:aot :all}
     :dev {:dependencies [[midje "1.6.3"]]}}
   :plugins [[ragtime/ragtime.lein "0.3.7"]]
   :ragtime {:migrations ragtime.sql.files/migrations})

@@ -1,7 +1,8 @@
 (ns sync-data-json.core
   (:require [cheshire.core :refer :all]
             [environ.core :refer [env]]
-            [sync-data-json.entries :as entries]))
+            [sync-data-json.entries :as entries])
+  (:gen-class))
 
 
 (defn read-data-json [url]
