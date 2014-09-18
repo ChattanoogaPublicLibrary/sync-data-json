@@ -48,4 +48,5 @@
 (def cj (cronj/cronj :entries [load-task]))
 
 (defn -main [& m]
+  (println "Starting cron.")
   (cronj/start! cj))
