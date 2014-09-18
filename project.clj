@@ -17,6 +17,7 @@
     [environ "1.0.0"]
     [org.jsoup/jsoup "1.7.2"]
     [com.cemerick/url "0.1.1"]
+    [im.chit/cronj "1.4.2"]
     [cheshire "5.3.1"]]
   :main ^:skip-aot sync-data-json.core
   :target-path "target/%s"
