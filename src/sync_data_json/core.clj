@@ -47,7 +47,7 @@
 (def load-task
   {:id "load-task"
    :handler load-handler
-   :schedule "0 15 17 * * * *"
+   :schedule "0 25 17 * * * *"
    :opts {}})
 
 (def cj (cronj/cronj :entries [load-task]))
