@@ -10,7 +10,7 @@
   (parse-stream (clojure.java.io/reader url) true))
 
 (defn load-entries [url host]
-  (doseq [x (read-data-json url)]
+  (doseq [x (filter (fn [i] (= (get i :contactPoint) "geoace67")) (read-data-json url))]
     (entries/load-entry x host)))
 
 (defn add-attributions [jsonentry attribution attribution-url]
