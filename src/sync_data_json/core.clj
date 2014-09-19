@@ -13,13 +13,18 @@
   (doseq [x (read-data-json url)]
     (entries/load-entry x host)))
 
+(defn add-attributions [jsonentry attribution attribution-url]
+  (-> jsonentry
+  (assoc-in [:attribution] attribution)
+  (assoc-in [:attributionURL] attribution-url)))
+
 (defn load-handler [t opts]
   (load-entries (env :sync-data-json-url) (env :sync-host))
   (println "Entries loaded.")
   (doseq [x (entries/get-new-entries)]
     (let [jsonentry (read-string (get x :serialized_data))]
       (entries/create-external-dataset-from-entry
-        jsonentry
+        (add-attributions jsonentry (env :sync-attribution) (env :sync-attribution-url))
         (env :sync-host)
         (env :sync-url)
         (env :sync-username)
@@ -30,7 +35,7 @@
           destination-id (get x :destination_id)]
       (entries/update-external-dataset-from-entry
         destination-id
-        jsonentry
+        (add-attributions jsonentry (env :sync-attribution) (env :sync-attribution-url))
         (env :sync-host)
         (env :sync-url)
         (env :sync-username)

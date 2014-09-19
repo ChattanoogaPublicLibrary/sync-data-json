@@ -146,6 +146,10 @@
     (.getDescription (entries/build-external-dataset {:description "Some description"})) => "Some description")
   (fact "If external dataset has HTML in description, it strips it out."
     (.getDescription (entries/build-external-dataset {:description "<b>Some description</b>"})) => "Some description")
+  (fact "Returns new external dataset object with given entry attribution as the attribution."
+    (.getAttribution (entries/build-external-dataset {:attribution "Something"})) => "Something")
+  (fact "Returns new external dataset object with given entry attribution link as the attribution link."
+    (.getAttributionLink (entries/build-external-dataset {:attributionURL "http://www.google.com"})) => "http://www.google.com")
   (fact "Returns new external dataset object with given external dataset access points."
     (.. (entries/build-external-dataset {:distribution [{:format "csv" :accessURL "http://www.example.com/example.csv"} {:format "html" :accessURL "http://www.example.com"}]}) (getMetadata) (getAccessPoints)) => {"html" "http://www.example.com", "csv" "http://www.example.com/example.csv"})
   (fact "Returns new external dataset object with given entry tags as the tags."

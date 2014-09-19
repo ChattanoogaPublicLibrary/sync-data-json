@@ -113,6 +113,8 @@
       (.setTags (get sanitized-entry :keyword))
       (.setAccessPoints (distribution-to-access-points (get sanitized-entry :distribution)))
       (.setDescription (get sanitized-entry :description))
+      (.setAttribution (get sanitized-entry :attribution))
+      (.setAttributionLink (get sanitized-entry :attributionURL))
       (.build))))
 
 (defn update-external-dataset-data [jsonentry dataset]
@@ -123,6 +125,8 @@
     (.setName updated-dataset (get sanitized-entry :title))
     (.setDescription updated-dataset (get sanitized-entry :description))
     (.setTags updated-dataset (get sanitized-entry :keyword))
+    (.setAttribution updated-dataset (get sanitized-entry :attribution))
+    (.setAttributionLink updated-dataset (get sanitized-entry :attributionURL))
     updated-dataset))
 
 
@@ -144,6 +148,8 @@
         new-dataset (-> soda-importer (.createDataset (build-external-dataset jsonentry)))]
         ; I don't get it. Tags will only add after dataset is created.
     (update-external-dataset (.getId new-dataset) jsonentry url username password token)
+    (-> soda-importer
+      (.makePublic (.getId new-dataset)))
     (-> soda-importer
       (.publish (.getId new-dataset)))))
 
