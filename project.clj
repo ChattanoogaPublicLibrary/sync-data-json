@@ -1,6 +1,7 @@
 (defproject sync-data-json "0.0.0-SNAPSHOT"
   :description "A utility to mirror datasets from other data portals as external datasets in your Socrata Open Data Portal. Uses external data portal's data.json dataset catalog for aggregation."
   :url "https://github.com/ChattanoogaPublicLibrary/sync-data-json"
+  :min-lein-version "2.0.0"
   :license {:name "MIT"
             :url "http://opensource.org/licenses/MIT"}
   :dependencies [
