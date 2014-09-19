@@ -20,7 +20,8 @@
     [com.cemerick/url "0.1.1"]
     [im.chit/cronj "1.4.2"]
     [cheshire "5.3.1"]]
-  :main ^:skip-aot sync-data-json.core
+  :main sync-data-json.core
+  :jvm-opts ["-server"]
   :target-path "target/%s"
   :javac-options ["-target" "1.7" "-source" "1.7"]
   :profiles {
