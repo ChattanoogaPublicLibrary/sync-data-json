@@ -196,8 +196,8 @@
   (with-state-changes [(before :facts (reset-database))]
     (fact "When dataset is updated, it changes the changed field to false of the entry with the given source_id"
         (do
-          (entries/create-entry {:identifier "testtest"} "data.chattlibrary.org")
-          (entries/create-entry {:identifier "testtesttest"} "data.chattlibrary.org")
+          (insert entries/entries
+            (values {:host "data.chattlibrary.org" :source_id "testtesttest" :destination_id "xxxx-xxxx" :changed true}))
           (with-redefs [entries/update-existing-external-dataset (fn [destination-id jsonentry url username password token] {})]
             (entries/update-external-dataset-from-entry "xxxx-xxxx" {:identifier "testtesttest"} "data.chattlibrary.org" "" "" "" ""))
           (get (first (select entries/entries (where (and (= :changed false) (= :source_id "testtesttest"))))) :source_id)) => "testtesttest")))
