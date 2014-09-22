@@ -1,6 +1,6 @@
 # sync-data-json
 
-[![Build Status](https://travis-ci.org/ChattanoogaPublicLibrary/sync-data-json.png)](https://travis-ci.org/ChattanoogaPublicLibrary/sync-data-json.png)
+[![Build Status](https://travis-ci.org/ChattanoogaPublicLibrary/sync-data-json.png)](https://travis-ci.org/ChattanoogaPublicLibrary/sync-data-json)
 
 A utility to mirror datasets from other data portals as external datasets in your Socrata Open Data Portal. Uses external data portal's data.json dataset catalog for aggregation.
 
