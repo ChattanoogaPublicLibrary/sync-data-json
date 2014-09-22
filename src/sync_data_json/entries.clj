@@ -169,4 +169,4 @@
   (let [updated-dataset (update-existing-external-dataset destination-id jsonentry url username password token)]
     (update entries
       (set-fields {:changed false })
-      (where (and (= :host host) (= :source_id destination-id))))))
+      (where (and (= :host host) (= :destination_id destination-id))))))
