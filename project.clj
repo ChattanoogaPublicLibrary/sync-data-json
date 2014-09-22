@@ -27,5 +27,5 @@
   :profiles {
     :uberjar {:aot :all}
     :dev {:dependencies [[midje "1.6.3"]]}}
-  :plugins [[ragtime/ragtime.lein "0.3.7"]]
+  :plugins [[lein-midje "3.1.3"] [ragtime/ragtime.lein "0.3.7"]]
   :ragtime {:migrations ragtime.sql.files/migrations})
