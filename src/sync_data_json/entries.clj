@@ -108,7 +108,7 @@
 (defn build-external-dataset [jsonentry]
   (let [sanitized-entry (sanitize-entry jsonentry)]
     (-> (ExternalDatasetBuilder.)
-      (.setMetadata (Metadata.))
+      (.setMetadata (Metadata. {"Organization" {"Name" "Thrive 2055"}} nil nil nil nil))
       (.setName (get sanitized-entry :title))
       (.setTags (get sanitized-entry :keyword))
       (.setAccessPoints (distribution-to-access-points (get sanitized-entry :distribution)))
@@ -120,7 +120,7 @@
 (defn update-external-dataset-data [jsonentry dataset]
   (let [sanitized-entry (sanitize-entry jsonentry)
         updated-dataset dataset]
-    (.setMetadata updated-dataset (Metadata.))
+    (.setMetadata updated-dataset (Metadata. {"Organization" {"Name" "Thrive 2055"}} nil nil nil nil))
     (.setAccessPoints (.getMetadata updated-dataset) (distribution-to-access-points (get sanitized-entry :distribution)))
     (.setName updated-dataset (get sanitized-entry :title))
     (.setDescription updated-dataset (get sanitized-entry :description))
